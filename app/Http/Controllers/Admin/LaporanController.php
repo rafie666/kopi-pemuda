@@ -6,9 +6,19 @@ use App\Http\Controllers\Controller;
 
 class LaporanController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $transaksis = \App\Models\Transaksi::with(['user', 'details.menu'])->latest()->get();
+        $query = \App\Models\Transaksi::with(['user', 'details.menu']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+        }
+
+        $transaksis = $query->latest()->get();
         return view('admin.laporan.index', compact('transaksis'));
     }
 

@@ -9,6 +9,13 @@
                 <h2 class="text-2xl font-black text-gray-800 tracking-tight">Riwayat Transaksi</h2>
                 <p class="text-sm text-gray-400 font-medium mt-1">Daftar semua transaksi yang telah selesai di Kopi Pemuda.</p>
             </div>
+            <div class="flex items-center gap-3">
+                <form action="{{ route('admin.laporan.index') }}" method="GET" class="relative group">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari ID atau Kasir..." 
+                        class="pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all w-64 shadow-sm">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-red-500 transition-colors"></i>
+                </form>
+            </div>
         </div>
         
         <div class="overflow-x-auto rounded-xl">
@@ -31,8 +38,8 @@
                         <td class="py-5 px-6 text-gray-500 font-medium">{{ $transaksi->created_at->format('d M Y') }} <span class="text-gray-300 text-xs ml-1">{{ $transaksi->created_at->format('H:i') }}</span></td>
                         <td class="py-5 px-6 text-gray-700 font-bold uppercase text-xs tracking-wide">{{ $transaksi->user->name ?? 'System' }}</td>
                         <td class="py-5 px-6">
-                            @if($transaksi->payment_method == 'qris')
-                                <span class="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase">QRIS</span>
+                            @if($transaksi->payment_method == 'mbanking')
+                                <span class="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase">MBANKING</span>
                             @else
                                 <span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase">CASH</span>
                             @endif

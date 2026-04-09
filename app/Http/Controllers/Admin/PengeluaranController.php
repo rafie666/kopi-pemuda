@@ -27,12 +27,19 @@ class PengeluaranController extends Controller
             'category' => $request->category ?: 'Operasional',
         ]);
 
+        $this->logActivity('mencatat pengeluaran: ' . $request->description . ' sejumlah Rp ' . number_format($request->amount, 0, ',', '.'));
+
         return redirect()->back()->with('success', 'Pengeluaran berhasil dicatat.');
     }
 
     public function destroy(Pengeluaran $pengeluaran)
     {
+        $desc = $pengeluaran->description;
+        $amount = $pengeluaran->amount;
         $pengeluaran->delete();
+        
+        $this->logActivity('menghapus pengeluaran: ' . $desc . ' sejumlah Rp ' . number_format($amount, 0, ',', '.'));
+        
         return redirect()->back()->with('success', 'Pengeluaran berhasil dihapus.');
     }
 }

@@ -25,6 +25,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/laporan/{id}', [\App\Http\Controllers\Admin\LaporanController::class, 'show'])->name('laporan.show');
     Route::resource('menus', MenuController::class);
     Route::patch('/menus/{menu}/quick-stock', [MenuController::class, 'quickStock'])->name('menus.quickStock');
+    Route::patch('/menus/{menu}/toggle-status', [MenuController::class, 'toggleStatus'])->name('menus.toggleStatus');
     Route::resource('users', UserController::class);
     Route::resource('pengeluarans', \App\Http\Controllers\Admin\PengeluaranController::class);
     Route::post('/users/assign-kasir', [UserController::class, 'assignKasir'])->name('users.assignKasir');
@@ -61,9 +62,12 @@ use App\Http\Controllers\Api\MidtransController;
 Route::post('/midtrans/notification', [MidtransController::class, 'handleNotification'])->name('midtrans.notification');
 
 // Kasir Routes
-Route::middleware(['auth', 'kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+Route::middleware(['auth', 'kasir', 'shift.active'])->prefix('kasir')->name('kasir.')->group(function () {
     Route::get('/order', [OrderController::class, 'index'])->name('order');
+    Route::get('/riwayat-transaksi', [App\Http\Controllers\Kasir\TransaksiController::class, 'index'])->name('transaksi.index');
     Route::post('/transaksi', [App\Http\Controllers\Kasir\TransaksiController::class, 'store'])->name('transaksi.store');
     Route::get('/shift', [ShiftController::class, 'index'])->name('shift');
+    Route::post('/shift/start', [ShiftController::class, 'startShift'])->name('shift.start');
+    Route::post('/shift/end', [ShiftController::class, 'endShift'])->name('shift.end');
     // Add other kasir routes here
 });

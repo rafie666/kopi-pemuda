@@ -36,7 +36,7 @@ class LoginController extends Controller
                 return redirect()->intended('/admin/dashboard');
             }
 
-            return redirect()->intended('/kasir/order');
+            return redirect()->intended('/kasir/shift');
         }
 
         return back()->withErrors([
@@ -48,6 +48,14 @@ class LoginController extends Controller
     {
         $user = Auth::user();
         if ($user) {
+            // Proteksi Shift Kasir
+            if ($user->role === 'kasir') {
+                $activeShift = \App\Models\Shift::where('user_id', $user->id)->whereNull('end_time')->first();
+                if ($activeShift) {
+                    return redirect()->route('kasir.shift')->with('error', 'Anda wajib mengakhiri shift dan mengisi saldo akhir sebelum logout.');
+                }
+            }
+
             // Reset status online
             $user->update(['last_seen_at' => null]);
 

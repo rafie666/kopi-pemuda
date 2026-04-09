@@ -37,7 +37,7 @@
         }
     </style>
 </head>
-<body class="h-screen flex justify-center items-center font-sans bg-cover bg-center bg-no-repeat relative" style="background-image: url('{{ asset('public/images/bg-coffee.jpg') }}'); background-color: #1a1a1a;">
+<body class="h-screen flex justify-center items-center font-sans bg-cover bg-center bg-no-repeat relative" style="background-image: url('{{ asset('images/kopii.jpeg') }}'); background-color: #1a1a1a;">
 
     <!-- Dark Overlay to ensure text readability -->
     <div class="absolute inset-0 bg-black/50 z-0"></div>

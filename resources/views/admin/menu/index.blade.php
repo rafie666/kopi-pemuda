@@ -52,6 +52,7 @@
                     <th class="py-5 px-6 font-bold text-gray-400">Nama Produk</th>
                     <th class="py-5 px-6 font-bold text-gray-400">Kategori</th>
                     <th class="py-5 px-6 font-bold text-gray-400">Harga</th>
+                    <th class="py-5 px-6 font-bold text-gray-400 text-center">Tersedia</th>
                     <th class="py-5 px-6 font-bold text-gray-400 text-center">Stok</th>
                     <th class="py-5 px-6 font-bold text-gray-400 text-center">Aksi</th>
                 </tr>
@@ -73,9 +74,22 @@
                             @endif
                         </div>
                     </td>
-                    <td class="py-5 px-6 font-black text-gray-800 text-base">{{ $menu->name }}</td>
+                    <td class="py-5 px-6 font-black text-gray-800 text-base">
+                        {{ $menu->name }}<br>
+                        @if($menu->is_best_seller)
+                            <div class="mt-1 text-[10px] bg-red-100 text-red-600 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fas fa-star text-[8px]"></i> Best Seller (Manual)</div>
+                        @elseif(in_array($menu->id, $topMenuIds))
+                            <div class="mt-1 text-[10px] bg-orange-100 text-orange-600 px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><i class="fas fa-fire text-[8px]"></i> Best Seller (Auto)</div>
+                        @endif
+                    </td>
                     <td class="py-5 px-6 font-bold text-gray-500 text-sm italic">{{ $menu->category }}</td>
                     <td class="py-5 px-6 font-black text-gray-800 text-lg tracking-tight">Rp {{ number_format($menu->price, 0, ',', '.') }}</td>
+                    <td class="py-5 px-6 text-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" onchange="toggleStatus({{ $menu->id }}, this.checked)" class="sr-only peer" {{ $menu->is_available ? 'checked' : '' }}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        </label>
+                    </td>
                     <td class="py-5 px-6">
                         <div class="flex items-center justify-center gap-2">
                             <button onclick="changeStock({{ $menu->id }}, -1)" class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-100 transition-all text-gray-500 font-bold hover:scale-110 active:scale-95">-</button>
@@ -173,6 +187,17 @@
                         </div>
                     </div>
 
+                    <div class="form-group flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div>
+                            <label class="block text-[15px] font-bold text-gray-800">Penandaan Best Seller Khusus</label>
+                            <p class="text-[11px] text-gray-500 mt-1 max-w-[250px]">Produk ini akan selalu masuk daftar Best Seller secara manual.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" name="is_best_seller" id="tambah_is_best_seller" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        </label>
+                    </div>
+
                     <div class="pt-4">
                         <button type="submit" class="w-full bg-[#b22a25] text-white font-bold py-4 rounded-xl hover:bg-red-900 transition-all shadow-lg text-lg">
                             Tambah Produk
@@ -249,6 +274,17 @@
                         </div>
                     </div>
 
+                    <div class="form-group flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                        <div>
+                            <label class="block text-[15px] font-bold text-gray-800">Penandaan Best Seller Khusus</label>
+                            <p class="text-[11px] text-gray-500 mt-1 max-w-[250px]">Produk ini akan selalu masuk daftar Best Seller secara manual.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                            <input type="checkbox" name="is_best_seller" id="edit_is_best_seller" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        </label>
+                    </div>
+
                     <div class="pt-4">
                         <button type="submit" class="w-full bg-[#b22a25] text-white font-bold py-4 rounded-xl hover:bg-red-900 transition-all shadow-lg text-lg">
                             Simpan Perubahan
@@ -297,6 +333,8 @@
         document.getElementById('editCategory').value = menu.category;
         document.getElementById('editPrice').value = menu.price;
         document.getElementById('editStock').value = menu.stock;
+        document.getElementById('editStock').value = menu.stock;
+        document.getElementById('edit_is_best_seller').checked = menu.is_best_seller == 1;
         document.getElementById('fileNameEdit').innerText = 'No file chosen';
         
         toggleModal('modalEdit');
@@ -324,6 +362,37 @@
             } else {
                 Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, timer: 1500, showConfirmButton: false });
             }
+        });
+    }
+
+    function toggleStatus(id, isAvailable) {
+        fetch(`/admin/menus/${id}/toggle-status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ is_available: isAvailable ? 1 : 0 })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Diperbarui',
+                    text: isAvailable ? 'Bahan baku masuk daftar Tersedia.' : 'Bahan baku diset menjadi Habis.',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    position: 'top-end',
+                    toast: true
+                });
+            } else {
+                location.reload();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            location.reload();
         });
     }
 

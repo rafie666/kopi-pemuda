@@ -10,6 +10,7 @@
         <div class="px-4 md:px-6 py-3 md:py-4 bg-white shadow-sm z-10">
             <div class="flex gap-2 md:gap-3 overflow-x-auto no-scrollbar pb-1">
                 <button onclick="filterCategory('all')" id="cat-all" class="category-btn px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-red-600 text-white font-bold shadow-md whitespace-nowrap text-[12px] md:text-sm transition transform hover:scale-105">Semua</button>
+                <button onclick="filterCategory('Best Seller')" id="cat-best-seller" class="category-btn px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold hover:shadow-md whitespace-nowrap text-[12px] md:text-sm transition"><i class="fas fa-star text-[10px] mr-1"></i>Best Seller</button>
                 <button onclick="filterCategory('Makanan Ringan')" id="cat-makanan-ringan" class="category-btn px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 whitespace-nowrap text-[12px] md:text-sm transition">Makanan Ringan</button>
                 <button onclick="filterCategory('Minuman Ringan')" id="cat-minuman-ringan" class="category-btn px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 whitespace-nowrap text-[12px] md:text-sm transition">Minuman Ringan</button>
                 <button onclick="filterCategory('Makanan Berat')" id="cat-makanan-berat" class="category-btn px-4 md:px-5 py-1.5 md:py-2 rounded-full bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 whitespace-nowrap text-[12px] md:text-sm transition">Makanan Berat</button>
@@ -29,9 +30,15 @@
                      data-stock="{{ $menu->stock }}"
                      data-image="{{ asset('storage/' . $menu->image) }}"
                      data-category="{{ $menu->category }}"
+                     data-bestseller="{{ $menu->is_best_seller || in_array($menu->id, $topMenuIds) ? 'true' : 'false' }}"
                      class="menu-item bg-white rounded-xl shadow-sm hover:shadow-lg cursor-pointer overflow-hidden transition transform hover:-translate-y-1 group border border-transparent hover:border-red-500 p-3 flex flex-col items-center h-full {{ $menu->stock <= 0 ? 'opacity-50 grayscale pointer-events-none' : '' }}">
                     <!-- Image -->
                     <div class="w-full aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden relative">
+                        @if($menu->is_best_seller || in_array($menu->id, $topMenuIds))
+                            <div class="absolute top-2 left-2 bg-gradient-to-r from-red-600 to-orange-500 text-white text-[9px] font-black px-2 py-1 rounded-md shadow-md z-10 flex items-center gap-1">
+                                <i class="fas fa-star text-[8px]"></i> BEST SELLER
+                            </div>
+                        @endif
                         @if($menu->image)
                             <img src="{{ asset('storage/' . $menu->image) }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
                         @else
@@ -115,8 +122,9 @@
 </div>
 
 <!-- Modal Struk / Receipt (Same as before) -->
-<div id="receiptModal" class="fixed inset-0 bg-black/90 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white text-black rounded-lg w-full max-w-sm p-8 shadow-2xl relative">
+<div id="receiptModal" class="fixed inset-0 bg-black/90 z-[60] hidden overflow-y-auto p-4 md:p-10 backdrop-blur-sm">
+    <div class="flex min-h-full items-center justify-center">
+        <div class="bg-white text-black rounded-[2rem] w-full max-w-sm p-8 shadow-2xl relative my-auto">
         <button onclick="closeReceiptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
@@ -142,6 +150,7 @@
         </div>
         <div class="flex gap-3">
             <button onclick="window.print()" class="w-full bg-black text-white py-3 rounded-lg font-bold hover:bg-gray-800 transition">CETAK STRUK</button>
+        </div>
         </div>
     </div>
 </div>
@@ -175,7 +184,7 @@
             </div>
             <div class="flex w-full bg-gray-100 rounded-lg p-1.5 mb-8 max-w-md">
                 <button onclick="setPaymentMethod('cash')" id="btn-cash" class="flex-1 py-3 rounded-md bg-white text-gray-900 font-bold shadow-md transition transform border border-gray-200">Tunai</button>
-                <button onclick="setPaymentMethod('qris')" id="btn-qris" class="flex-1 py-3 rounded-md text-gray-500 hover:text-gray-900 font-semibold transition">Non-Tunai (Transfer)</button>
+                <button onclick="setPaymentMethod('mbanking')" id="btn-mbanking" class="flex-1 py-3 rounded-md text-gray-500 hover:text-gray-900 font-semibold transition">Non-Tunai (Transfer)</button>
             </div>
 
             <!-- Discount Section -->
@@ -203,7 +212,7 @@
                     <div class="w-full bg-transparent border-b border-gray-300 py-3 text-2xl text-gray-900 font-mono" id="payment-change">Rp 0</div>
                 </div>
             </div>
-            <div id="qris-section" class="w-full max-w-md mb-10 hidden flex flex-col items-center p-6 bg-gray-50 rounded-2xl border border-gray-200">
+            <div id="mbanking-section" class="w-full max-w-md mb-10 hidden flex flex-col items-center p-6 bg-gray-50 rounded-2xl border border-gray-200">
                 <div class="mb-6 flex flex-col items-center w-full">
                     <span class="text-gray-400 text-[10px] uppercase font-bold tracking-widest mb-4">Transfer Via</span>
                     
@@ -251,13 +260,23 @@
             document.querySelectorAll('.menu-item').forEach(item => {
                 const name = item.querySelector('h3').innerText.toLowerCase();
                 const category = item.dataset.category; // Ensure dataset is accessed correctly
+                const isBestSeller = item.getAttribute('data-bestseller') === 'true';
+                
                 // If simple search by name
                 if (name.includes(keyword)) {
-                   item.style.display = 'flex';
+                   // Only show if it also matches the active category
+                   if (currentCategory === 'all') {
+                       item.style.display = 'flex';
+                   } else if (currentCategory === 'Best Seller') {
+                       item.style.display = isBestSeller ? 'flex' : 'none';
+                   } else {
+                       item.style.display = (category === currentCategory) ? 'flex' : 'none';
+                   }
                 } else {
                    item.style.display = 'none';
                 }
             });
+            // If empty, revert to category filtering instead of showing everything
             if (keyword === '') filterCategory(currentCategory);
         });
 
@@ -292,7 +311,13 @@
 
         document.querySelectorAll('.menu-item').forEach(item => {
             const itemCat = item.getAttribute('data-category');
-            if (category === 'all' || itemCat === category) {
+            const isBestSeller = item.getAttribute('data-bestseller') === 'true';
+            
+            if (category === 'all') {
+                item.style.display = 'flex';
+            } else if (category === 'Best Seller') {
+                item.style.display = isBestSeller ? 'flex' : 'none';
+            } else if (itemCat === category) {
                 item.style.display = 'flex';
             } else {
                 item.style.display = 'none';
@@ -562,25 +587,25 @@
     function setPaymentMethod(method) {
         currentPaymentMethod = method;
         const btnCash = document.getElementById('btn-cash');
-        const btnQris = document.getElementById('btn-qris');
+        const btnMbanking = document.getElementById('btn-mbanking');
         const cashSection = document.getElementById('cash-section');
-        const qrisSection = document.getElementById('qris-section');
+        const mbankingSection = document.getElementById('mbanking-section');
 
         if(method === 'cash') {
             btnCash.classList.add('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border', 'border-gray-200');
             btnCash.classList.remove('text-gray-500');
-            btnQris.classList.remove('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border');
-            btnQris.classList.add('text-gray-500');
+            btnMbanking.classList.remove('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border');
+            btnMbanking.classList.add('text-gray-500');
             cashSection.classList.remove('hidden');
-            qrisSection.classList.add('hidden');
+            mbankingSection.classList.add('hidden');
             document.getElementById('input-payment').focus();
         } else {
-            btnQris.classList.add('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border', 'border-gray-200');
-            btnQris.classList.remove('text-gray-500');
+            btnMbanking.classList.add('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border', 'border-gray-200');
+            btnMbanking.classList.remove('text-gray-500');
             btnCash.classList.remove('bg-white', 'text-gray-900', 'font-bold', 'shadow-md', 'border');
             btnCash.classList.add('text-gray-500');
             cashSection.classList.add('hidden');
-            qrisSection.classList.remove('hidden');
+            mbankingSection.classList.remove('hidden');
         }
     }
 

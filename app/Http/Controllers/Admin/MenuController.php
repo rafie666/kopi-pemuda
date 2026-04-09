@@ -22,7 +22,15 @@ class MenuController extends Controller
         }
 
         $menus = $query->get();
-        return view('admin.menu.index', compact('menus'));
+        
+        $topMenuIds = \App\Models\DetailTransaksi::select('menu_id', \Illuminate\Support\Facades\DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('menu_id')
+            ->orderByDesc('total_sold')
+            ->take(3)
+            ->pluck('menu_id')
+            ->toArray();
+
+        return view('admin.menu.index', compact('menus', 'topMenuIds'));
     }
 
     public function create()
@@ -47,7 +55,11 @@ class MenuController extends Controller
             $data['image'] = $imagePath;
         }
 
+        $data['is_best_seller'] = $request->has('is_best_seller');
+
         Menu::create($data);
+
+        $this->logActivity('telah menambahkan produk baru: ' . $request->name);
 
         return redirect()->back()->with('success', 'Menu baru berhasil ditambahkan.');
     }
@@ -78,7 +90,11 @@ class MenuController extends Controller
             $data['image'] = $imagePath;
         }
 
+        $data['is_best_seller'] = $request->has('is_best_seller');
+
         $menu->update($data);
+
+        $this->logActivity('telah memperbarui produk: ' . $request->name);
 
         return redirect()->back()->with('success', 'Menu berhasil diperbarui.');
     }
@@ -88,7 +104,11 @@ class MenuController extends Controller
         if ($menu->image) {
             Storage::disk('public')->delete($menu->image);
         }
+        $menuName = $menu->name;
         $menu->delete();
+        
+        $this->logActivity('telah menghapus produk: ' . $menuName);
+        
         return redirect()->back()->with('success', 'Menu berhasil dihapus.');
     }
 
@@ -114,6 +134,23 @@ class MenuController extends Controller
         return response()->json([
             'success' => true,
             'new_stock' => $menu->stock
+        ]);
+    }
+
+    public function toggleStatus(Request $request, Menu $menu)
+    {
+        $request->validate([
+            'is_available' => 'required|boolean'
+        ]);
+
+        $menu->update(['is_available' => $request->is_available]);
+
+        $status = $request->is_available ? 'Tersedia' : 'Habis';
+        $this->logActivity("mengubah ketersediaan produk {$menu->name} menjadi: {$status}");
+
+        return response()->json([
+            'success' => true,
+            'is_available' => $menu->is_available
         ]);
     }
 }

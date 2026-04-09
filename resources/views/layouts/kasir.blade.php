@@ -61,6 +61,16 @@
                 </div>
             </div>
             
+            <a href="{{ route('kasir.shift') }}" class="w-full bg-red-50 text-red-700 font-bold py-3 px-4 rounded-xl flex items-center gap-3 mb-3 transition border border-red-100 hover:bg-red-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Manajemen Shift
+            </a>
+
+            <a href="{{ route('kasir.transaksi.index') }}" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-xl flex items-center gap-3 mb-4 transition border border-gray-200">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                Riwayat Transaksi
+            </a>
+
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl flex justify-center items-center gap-2 shadow-lg shadow-red-200 transition">
@@ -107,6 +117,14 @@
 
             <!-- User & Logout (Desktop) -->
             <div class="hidden md:flex items-center gap-6">
+                <a href="{{ route('kasir.shift') }}" class="text-sm font-bold text-red-50 hover:text-white transition flex items-center gap-2 bg-red-900 border border-red-700 hover:bg-red-800 px-4 py-2 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Manajemen Shift
+                </a>
+                <a href="{{ route('kasir.transaksi.index') }}" class="text-sm font-bold text-gray-300 hover:text-white transition flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Riwayat Transaksi
+                </a>
                 <div class="flex items-center gap-1 text-lg">
                     <span class="text-gray-400">Hallo,</span>
                     <span class="text-red-500 font-bold">{{ Auth::user()->name }}</span>

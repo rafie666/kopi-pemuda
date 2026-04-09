@@ -36,6 +36,19 @@ class DashboardController extends Controller
         
         $produk_terlaris = $best_seller && $best_seller->menu ? $best_seller->menu->name : '-';
 
+        // Best Cashier this month
+        $best_cashier_data = \App\Models\Transaksi::select('user_id', DB::raw('SUM(payable_amount) as total_omzet'), DB::raw('COUNT(id) as total_transaksi'))
+            ->where('status', 'completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->groupBy('user_id')
+            ->orderByDesc('total_omzet')
+            ->with('user')
+            ->first();
+
+        $kasir_terbaik = $best_cashier_data && $best_cashier_data->user ? $best_cashier_data->user->name : '-';
+        $kasir_terbaik_omzet = $best_cashier_data ? $best_cashier_data->total_omzet : 0;
+
         // --- CHART DATA CALCULATIONS ---
         // (keeping chart logic unchanged)
         $startOfWeek = Carbon::now()->startOfWeek(); 
@@ -101,25 +114,12 @@ class DashboardController extends Controller
             ]
         ];
 
-        // --- PRODUCT TABLE FILTERING ---
-        $search = $request->query('search');
-        $category = $request->query('category');
-
-        $menus = Menu::query()
-            ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->when($category && $category !== 'all', function ($query) use ($category) {
-                $query->where('category', $category);
-            })
-            ->latest()
-            ->get();
-
         $pengeluarans = Pengeluaran::latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
             'total_omzet', 'total_pengeluaran', 'laba_bersih', 'transaksi_hari_ini', 
-            'total_menu', 'total_kasir', 'produk_terlaris', 'menus', 'chart_data', 'pengeluarans', 'total_diskon'
+            'total_kasir', 'produk_terlaris', 'chart_data', 'pengeluarans', 'total_diskon',
+            'kasir_terbaik', 'kasir_terbaik_omzet'
         ));
     }
 }

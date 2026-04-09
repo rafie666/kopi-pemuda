@@ -82,6 +82,8 @@ class UserController extends Controller
 
         User::create($data);
 
+        $this->logActivity('menambahkan pegawai baru: ' . $data['name']);
+
         return redirect()->route('admin.users.index')->with('success', 'Pegawai baru berhasil ditambahkan.');
     }
 
@@ -109,6 +111,7 @@ class UserController extends Controller
         ]);
 
         if ($success) {
+            $this->logActivity('memberikan akses kasir kepada: ' . $user->name);
             return redirect()->route('admin.users.index', ['role' => 'kasir'])->with('success', 'Berhasil! ' . $user->name . ' sekarang punya akses Kasir.');
         }
 
@@ -148,6 +151,8 @@ class UserController extends Controller
 
         $user->update($data);
 
+        $this->logActivity('memperbarui data pegawai: ' . $user->name);
+
         return redirect()->route('admin.users.index')->with('success', 'Data pegawai berhasil diperbarui.');
     }
 
@@ -161,7 +166,11 @@ class UserController extends Controller
             \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
         }
 
+        $userName = $user->name;
         $user->delete();
+        
+        $this->logActivity('menghapus pegawai: ' . $userName);
+        
         return redirect()->back()->with('success', 'Pegawai berhasil dihapus.');
     }
 }
